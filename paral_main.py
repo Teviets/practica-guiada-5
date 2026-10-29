@@ -3,6 +3,8 @@ import time
 import numpy as np
 from numba import cuda
 
+from sec_main import imprimir_rendimiento, multiplicar_secuencial, nucleos_cuda
+
 
 @cuda.jit
 def multiplicar_paralelo(A, B, C):
@@ -58,6 +60,13 @@ def main():
    print(f"kernel:       {t_gpu * 1000:.3f} ms")
    print(f"GPU -> host:  {t_d2h * 1000:.3f} ms")
    print(f"coincide:     {np.allclose(C_gpu, A @ B, rtol=1e-3, atol=1e-2)}")
+
+   print("\nEjecutando la versión secuencial (con n = 1000 tarda unos minutos)...")
+   t0 = time.perf_counter()
+   multiplicar_secuencial(A, B)
+   t_cpu = time.perf_counter() - t0
+
+   imprimir_rendimiento(t_cpu, t_h2d + t_gpu + t_d2h, nucleos_cuda())
 
 
 if __name__ == "__main__":
